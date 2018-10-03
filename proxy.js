@@ -1074,16 +1074,13 @@ function handleMinerData(method, params, ip, portData, sendReply, pushMessage, m
         case 'login':
             let difficulty = portData.difficulty;
             let minerId = uuidV4();
-            portData.coin = "xmr";
+            if (!portData.coin) portData.coin = "xmr";
             miner = new Miner(minerId, params, ip, pushMessage, portData, minerSocket);
             if (!miner.valid_miner) {
                 console.warn(global.threadName + "Invalid miner, disconnecting due to: " + miner.error);
                 sendReply(miner.error);
                 return;
             }
-			if (global.config.addressWorkerID) {
-				miner.identifier = miner.user;
-			}
             process.send({type: 'newMiner', data: miner.port});
             activeMiners[minerId] = miner;
             // clean old miners with the same name/ip/agent
@@ -1249,12 +1246,12 @@ function activateHTTP() {
     			for (let miner_id in miners) {
 				const miner = miners[miner_id];
 				const name = miner.logString;
-				let avgSpeed = miner.active ? miner.avgSpeed : "offline";
+				let avgSpeed = miner.active ? miner.avgSpeed + " H/s" : "offline";
 				let agent_parts = miner.agent.split(" ");
 				tableBody += `
 				<tr>
 					<td><TAB TO=t1>${name}</td>
-					<td><TAB TO=t2>${avgSpeed} H/s</td>
+					<td><TAB TO=t2>${avgSpeed}</td>
 					<td><TAB TO=t3>${miner.diff}</td>
 					<td><TAB TO=t4>${miner.shares}</td>
 					<td><TAB TO=t5>${miner.hashes}</td>
@@ -1271,7 +1268,14 @@ function activateHTTP() {
 				let targetDiff = activePools[poolName].activeBlocktemplate ? activePools[poolName].activeBlocktemplate.targetDiff : "?";
                 		let walletId = activePools[poolName].username
 				if (poolName.includes("moneroocean")) {
-					tablePool += `<a class="${global.config.theme}" href="https://moneroocean.stream/#/dashboard?addr=${walletId}" title="MoneroOcean Dashboard" target="_blank"><h2> ${poolName}: ${poolHashrate[poolName]} H/s or ${poolPercentage}% (${targetDiff} diff)</h2></a>`;
+					let algo_variant = "";
+                                        if (activePools[poolName].activeBlocktemplate.algo) algo_variant += "algo: " + activePools[poolName].activeBlocktemplate.algo;
+                                        if (activePools[poolName].activeBlocktemplate.variant) {
+                                                if (algo_variant != "") algo_variant += ", ";
+                                                algo_variant += "variant: " + activePools[poolName].activeBlocktemplate.variant;
+                                         }
+                                        if (algo_variant != "") algo_variant = " (" + algo_variant + ")";
+					tablePool += `<a class="${global.config.theme}" href="https://moneroocean.stream/#/dashboard?addr=${walletId}" title="MoneroOcean Dashboard" target="_blank"><h2> ${poolName}: ${poolHashrate[poolName]} H/s or ${poolPercentage}% (${targetDiff} diff) ${algo_variant}</h2></a>`;
 				} else {
 					tablePool += `<h2> ${poolName}: ${poolHashrate[poolName]} H/s or ${poolPercentage}% (${targetDiff} diff)</h2></a>`;
 				}
@@ -1585,6 +1589,7 @@ if (cluster.isMaster) {
     */
     process.on('message', slaveMessageHandler);
     global.config.pools.forEach(function(poolData){
+        if (!poolData.coin) poolData.coin = "xmr";
         activePools[poolData.hostname] = new Pool(poolData);
         if (poolData.default){
             defaultPools[poolData.coin] = poolData.hostname;
