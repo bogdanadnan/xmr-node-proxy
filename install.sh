@@ -21,8 +21,8 @@ cd ~
 git clone https://github.com/bobbieltd/xmr-node-proxy
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
 source ~/.nvm/nvm.sh
-nvm install v8.11.3
-nvm alias default v8.11.3
+nvm install v8.12.0
+nvm alias default v8.12.0
 cd ~/xmr-node-proxy
 npm install || exit 1
 npm install -g pm2
@@ -31,7 +31,7 @@ sudo setcap 'cap_net_bind_service=+ep' `which node`
 openssl req -subj "/C=IT/ST=Pool/L=Daemon/O=Mining Pool/CN=mining.proxy" -newkey rsa:2048 -nodes -keyout cert.key -x509 -out cert.pem -days 36500
 cd ~
 pm2 status
-sudo env PATH=$PATH:`pwd`/.nvm/versions/node/v8.11.3/bin `pwd`/.nvm/versions/node/v8.11.3/lib/node_modules/pm2/bin/pm2 startup systemd -u $CURUSER --hp `pwd`
+sudo env PATH=$PATH:`pwd`/.nvm/versions/node/v8.12.0/bin `pwd`/.nvm/versions/node/v8.12.0/lib/node_modules/pm2/bin/pm2 startup systemd -u $CURUSER --hp `pwd`
 sudo chown -R $CURUSER. ~/.pm2
 echo "Installing pm2-logrotate in the background!"
 pm2 install pm2-logrotate
