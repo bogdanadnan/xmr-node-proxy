@@ -1526,7 +1526,7 @@ function checkConfig() { // make default values if not set in config
 //	console.log("Blob type guide : XMR forks --> blob_type is cryptonote, Forknote/Bytecoin forks --> blob_type is forknote2");
 	if (global.config.pools.length == 0) console.log("Please put at least one pool");
 	global.config.pools.forEach(function(poolData){
-		poolData.coin = "xmr";
+		if (!poolData.coin) poolData.coin = "xmr";
 		if (!poolData.algo) poolData.algo = "cryptonight/1";
 		if (!poolData.blob_type) poolData.blob_type = "cryptonote";
 	});
