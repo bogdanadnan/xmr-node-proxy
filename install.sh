@@ -18,7 +18,7 @@ else
   sudo DEBIAN_FRONTEND=noninteractive apt-get -y install git curl make g++ python-virtualenv libboost-dev libboost-system-dev libboost-date-time-dev
 fi
 cd ~
-git clone https://github.com/bobbieltd/xmr-node-proxy
+git clone https://github.com/bogdanadnan/xmr-node-proxy
 curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.0/install.sh | bash
 source ~/.nvm/nvm.sh
 nvm install v8.12.0
